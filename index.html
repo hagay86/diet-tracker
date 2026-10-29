@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLEAN PLATE — Athlete Diet Tracker</title>
+<style>
+  :root {
+    --cream: #f5f0e6;
+    --cream-dark: #ede5d5;
+    --green-dark: #2d4a2d;
+    --green: #4a7c59;
+    --green-light: #7aaa8a;
+    --green-xlight: #c8dfc8;
+    --gold: #b8860b;
+    --gold-light: #d4a82a;
+    --brown: #6b4226;
+    --brown-light: #a0684a;
+    --text: #1e2e1e;
+    --text-soft: #4a5e4a;
+    --red: #c0392b;
+    --orange: #e67e22;
+    --blue: #2980b9;
+    --shadow: 0 2px 12px rgba(45,74,45,0.10);
+    --shadow-lg: 0 6px 32px rgba(45,74,45,0.14);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    background: var(--green-dark);
+    color: var(--cream);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: var(--green-xlight);
+    font-family: 'Georgia', serif;
+  }
+  .logo span { color: var(--gold-light); }
+  .header-date {
+    font-size: 13px;
+    color: var(--green-xlight);
+    opacity: 0.8;
+    font-family: sans-serif;
+  }
+  .header-score {
+    background: var(--gold);
+    color: white;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: sans-serif;
+    font-weight: bold;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    background: var(--green-dark);
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--green-xlight);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    opacity: 0.7;
+  }
+  nav button:hover { opacity: 1; }
+  nav button.active {
+    border-bottom-color: var(--gold-light);
+    color: white;
+    opacity: 1;
+  }
+
+  /* ---- MAIN ---- */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 24px;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(74,124,89,0.1);
+  }
+  .card-title {
+    font-size: 13px;
+    font-family: sans-serif;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-bottom: 16px;
+  }
+
+  /* ---- DASHBOARD GRID ---- */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--green);
+  }
+  .stat-card.gold { border-left-color: var(--gold); }
+  .stat-card.brown { border-left-color: var(--brown-light); }
+  .stat-card.red { border-left-color: var(--red); }
+
+  .stat-label {
+    font-family: sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--green-dark);
+    line-height: 1;
+  }
+  .stat-unit {
+    font-size: 14px;
+    color: var(--text-soft);
+    font-family: sans-serif;
+    margin-left: 4px;
+  }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-family: sans-serif;
+    margin-top: 4px;
+  }
+
+  /* ---- MACRO BARS ---- */
+  .macro-bars { display: flex; flex-direction: column; gap: 14px; }
+  .macro-row { }
+  .macro-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: sans-serif;
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
+  .macro-name { font-weight: 600; color: var(--text); }
+  .macro-nums { color: var(--text-soft); }
+  .bar-bg {
+    height: 10px;
+    background: var(--cream-dark);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+  }
+  .bar-protein { background: linear-gradient(90deg, #4a7c59, #7aaa8a); }
+  .bar-carbs   { background: linear-gradient(90deg, #b8860b, #d4a82a); }
+  .bar-fat     { background: linear-gradient(90deg, #6b4226, #a0684a); }
+  .bar-calories{ background: linear-gradient(90deg, #2980b9, #5dade2); }
+
+  /* ---- QUALITY SCORE CIRCLE ---- */
+  .quality-circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: conic-gradient(var(--green) 0%, var(--cream-dark) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    position: relative;
+    box-shadow: 0 2px 12px rgba(74,124,89,0.2);
+  }
+  .quality-circle-inner {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .quality-score-num {
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--green-dark);
+    line-height: 1;
+  }
+  .quality-score-label {
+    font-size: 10px;
+    font-family: sans-serif;
+    color: var(--text-soft);
+    letter-spacing: 0.5px;
+  }
+  .quality-tag {
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* ---- MEALS LIST ---- */
+  .meals-list { display: flex; flex-direction: column; gap: 10px; }
+  .meal-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--cream);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--cream-dark);
+  }
+  .meal-time {
+    font-family: sans-serif;
+    font-size: 11px;
+    color: var(--text-soft);
+    min-width: 50px;
+    font-weight: 600;
+  }
+  .meal-name {
+    flex: 1;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .meal-macros {
+    font-family: sans-serif;
+    font-size: 12px;
+    color: var(--text-soft);
+    text-align: right;
+    line-height: 1.5;
+  }
+  .meal-quality-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: sans-serif;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-pure { background: #d4edda; color: #155724; }
+  .badge-clean { background: #d1ecf1; color: #0c5460; }
+  .badge-good { background: #fff3cd; color: #856404; }
+  .badge-ok { background: #ffe5d0; color: #7d3a00; }
+  .meal-delete {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    transition: color 0.2s;
+  }
+  .meal-delete:hover { color: var(--red); }
+
+  /* ---- LOG MEAL ---- */
+  .log-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .search-box {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: 'Georgia', serif;
+    background: var(--cream);
+    color: var(--text);
+    transition: border-color 0.2s;
+    outline: none;
+    margin-bottom: 14px;
+  }
+  .search-box:focus { border-color: var(--green); background: white; }
+
+  .food-list { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; }
+  .food-item {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    border: 1px solid var(--cream-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.15s;
+  }
+  .food-item:hover { background: var(--green-xlight); border-color: var(--green-light); }
+  .food-item.selected { background: var(--green-xlight); border-color: var(--green); box-shadow: 0 0 0 2px rgba(74,124,89,0.2); }
+  .food-emoji { font-size: 20px; min-width: 28px; }
+  .food-info { flex: 1; }
+  .food-item-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .food-item-sub { font-family: sans-serif; font-size: 11px; color: var(--text-soft); margin-top: 2px; }
+  .food-stars { color: var(--gold); font-size: 11px; }
+
+  /* ---- LOG FORM ---- */
+  .log-form { display: flex; flex-direction: column; gap: 14px; }
+  .selected-food-preview {
+    padding: 16px;
+    background: var(--green-xlight);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--green-light);
+  }
+  .selected-food-name { font-size: 17px; font-weight: bold; color: var(--green-dark); margin-bottom: 4px; }
+  .selected-food-note { font-family: sans-serif; font-size: 12px; color: var(--text-soft); }
+  .macro-preview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .macro-chip {
+    background: white;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid rgba(74,124,89,0.2);
+  }
+  .macro-chip-val { font-size: 16px; font-weight: bold; color: var(--green-dark); }
+  .macro-chip-label { font-family: sans-serif; font-size: 10px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  label.field-label {
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .field-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: 'Georgia', serif;
+    background: var(--cream);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-input:focus { border-color: var(--green); background: white; }
+
+  .btn {
+    padding: 13px 24px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 15px;
+    font-family: sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--green);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-primary:disabled { background: var(--green-xlight); color: var(--text-soft); cursor: not-allowed; }
+  .btn-gold {
+    background: var(--gold);
+    color: white;
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--green);
+    color: var(--green-dark);
+  }
+  .btn-outline:hover { background: var(--green-xlight); }
+
+  /* ---- MEAL TYPE PILLS ---- */
+  .meal-type-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--cream-dark);
+    background: white;
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-soft);
+    transition: all 0.15s;
+  }
+  .pill:hover { border-color: var(--green); color: var(--green); }
+  .pill.active { border-color: var(--green); background: var(--green); color: white; }
+
+  /* ---- FOOD LIBRARY ---- */
+  .library-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .lib-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(74,124,89,0.1);
+    position: relative;
+  }
+  .lib-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .lib-emoji { font-size: 28px; }
+  .lib-name { font-size: 15px; font-weight: bold; color: var(--text); }
+  .lib-category { font-family: sans-serif; font-size: 11px; color: var(--text-soft); }
+  .lib-quality {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-family: sans-serif;
+    font-weight: 700;
+  }
+  .lib-macros {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .lib-macro {
+    background: var(--cream);
+    border-radius: 6px;
+    padding: 5px;
+    text-align: center;
+  }
+  .lib-macro-val { font-size: 14px; font-weight: bold; color: var(--green-dark); }
+  .lib-macro-label { font-size: 9px; font-family: sans-serif; color: var(--text-soft); text-transform: uppercase; }
+  .lib-note {
+    font-family: sans-serif;
+    font-size: 11px;
+    color: var(--text-soft);
+    line-height: 1.5;
+    border-top: 1px solid var(--cream-dark);
+    padding-top: 8px;
+    margin-top: 2px;
+  }
+  .lib-note strong { color: var(--green-dark); }
+
+  /* ---- SETTINGS ---- */
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* ---- ALERT ---- */
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-family: sans-serif;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  .alert-warn { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+  /* ---- EMPTY STATE ---- */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-soft);
+    font-family: sans-serif;
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; }
+
+  /* ---- RESPONSIVITY ---- */
+  @media (max-width: 768px) {
+    .dashboard-grid { grid-template-columns: 1fr 1fr; }
+    .log-grid { grid-template-columns: 1fr; }
+    .library-grid { grid-template-columns: 1fr 1fr; }
+    .settings-grid { grid-template-columns: 1fr; }
+    .macro-preview { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .library-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---- FILTER CHIPS ---- */
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--cream-dark);
+    background: white;
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-soft);
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--green-light); }
+  .filter-chip.active { border-color: var(--green); background: var(--green); color: white; }
+
+  /* ---- INSIGHT BOX ---- */
+  .insight-box {
+    background: linear-gradient(135deg, var(--green-dark), #3d6e4a);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .insight-title { font-size: 12px; font-family: sans-serif; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 8px; }
+  .insight-text { font-size: 15px; line-height: 1.6; opacity: 0.95; }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--cream-dark); }
+  ::-webkit-scrollbar-thumb { background: var(--green-light); border-radius: 3px; }
+
+  /* ---- SECTION TITLE ---- */
+  .section-title {
+    font-size: 22px;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+    font-family: 'Georgia', serif;
+  }
+  .section-sub {
+    font-family: sans-serif;
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 24px;
+  }
+
+  .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green-dark);
+    color: white;
+    padding: 12px 22px;
+    border-radius: var(--radius-sm);
+    font-family: sans-serif;
+    font-size: 14px;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* WEIGHT LOG */
+  .weight-entries { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+  .weight-entry {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; background: var(--cream); border-radius: 8px;
+    font-family: sans-serif; font-size: 13px;
+  }
+
+  /* PROGRESS RING ANIMATION */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .tab-content.active { animation: fadeIn 0.25s ease; }
+
+  /* CUSTOM FOOD TOGGLE */
+  .toggle-section {
+    border: 1.5px dashed var(--green-light);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    background: rgba(122,170,138,0.05);
+  }
+  .toggle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.5px;
+  }
+  .toggle-body { margin-top: 14px; display: none; }
+  .toggle-body.open { display: block; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">CLEAN<span>PLATE</span></div>
+  <div class="header-date" id="headerDate"></div>
+  <div class="header-score" id="headerQuality">Quality: —</div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('dashboard')">📊 Dashboard</button>
+  <button onclick="showTab('log')">➕ Log Meal</button>
+  <button onclick="showTab('library')">📚 Food Library</button>
+  <button onclick="showTab('settings')">⚙️ My Goals</button>
+</nav>
+
+<main>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div class="insight-box" id="dailyInsight">
+      <div class="insight-title">🌿 Today's Athlete Insight</div>
+      <div class="insight-text" id="insightText">Log your first meal to get your personalized nutrition insight.</div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-label">Calories</div>
+        <div class="stat-value" id="statCalories">0</div>
+        <div class="stat-sub" id="statCalSub">Goal: <span id="calGoalSub">2400</span> kcal</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-label">Protein</div>
+        <div class="stat-value" id="statProtein">0<span class="stat-unit">g</span></div>
+        <div class="stat-sub" id="statProtSub">Goal: <span id="protGoalSub">180</span>g</div>
+      </div>
+      <div class="stat-card brown">
+        <div class="stat-label">Meals Today</div>
+        <div class="stat-value" id="statMeals">0</div>
+        <div class="stat-sub" id="statMealSub">Keep it consistent</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title">Daily Macros</div>
+          <div class="macro-bars">
+            <div class="macro-row">
+              <div class="macro-header">
+                <span class="macro-name">🥩 Protein</span>
+                <span class="macro-nums" id="protBar">0 / 180g</span>
+              </div>
+              <div class="bar-bg"><div class="bar-fill bar-protein" id="protFill" style="width:0%"></div></div>
+            </div>
+            <div class="macro-row">
+              <div class="macro-header">
+                <span class="macro-name">🌾 Carbs</span>
+                <span class="macro-nums" id="carbBar">0 / 250g</span>
+              </div>
+              <div class="bar-bg"><div class="bar-fill bar-carbs" id="carbFill" style="width:0%"></div></div>
+            </div>
+            <div class="macro-row">
+              <div class="macro-header">
+                <span class="macro-name">🥑 Fat</span>
+                <span class="macro-nums" id="fatBar">0 / 80g</span>
+              </div>
+              <div class="bar-bg"><div class="bar-fill bar-fat" id="fatFill" style="width:0%"></div></div>
+            </div>
+            <div class="macro-row">
+              <div class="macro-header">
+                <span class="macro-name">🔥 Calories</span>
+                <span class="macro-nums" id="calBar">0 / 2400 kcal</span>
+              </div>
+              <div class="bar-bg"><div class="bar-fill bar-calories" id="calFill" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Today's Meals</div>
+          <div class="meals-list" id="mealsList">
+            <div class="empty-state">
+              <div class="empty-icon">🍽️</div>
+              <div class="empty-title">No meals logged yet</div>
+              <div class="empty-sub">Head to "Log Meal" to start tracking</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:16px; text-align:center">
+          <div class="card-title" style="text-align:left">Food Quality Score</div>
+          <div class="quality-circle" id="qualityCircle">
+            <div class="quality-circle-inner">
+              <div class="quality-score-num" id="qualityNum">—</div>
+              <div class="quality-score-label">/ 100</div>
+            </div>
+          </div>
+          <div class="quality-tag" id="qualityTag" style="color: var(--text-soft)">Log meals to score</div>
+          <div style="font-family:sans-serif; font-size:11px; color:var(--text-soft); margin-top:10px; line-height:1.5; text-align:left">
+            Score is based on food purity: organic, pasture-raised, wild-caught, and homemade foods score highest.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Body Weight</div>
+          <div style="display:flex; gap:8px; margin-bottom:12px">
+            <input type="number" class="field-input" id="weightInput" placeholder="kg" style="flex:1; padding:9px 12px; font-size:14px">
+            <button class="btn btn-primary" style="padding:9px 14px; font-size:13px" onclick="logWeight()">Log</button>
+          </div>
+          <div class="weight-entries" id="weightEntries">
+            <div style="font-family:sans-serif; font-size:12px; color:var(--text-soft); text-align:center; padding:10px">No weight entries yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LOG MEAL ============ -->
+  <div id="tab-log" class="tab-content">
+    <div class="section-title">Log a Meal</div>
+    <div class="section-sub">Select a food, set your portion, and add it to your diary.</div>
+
+    <div class="log-grid">
+      <!-- Food Search -->
+      <div class="card">
+        <div class="card-title">Select Food</div>
+        <input type="text" class="search-box" id="foodSearch" placeholder="Search foods (e.g. salmon, oats, eggs)..." oninput="filterFoods()">
+        <div class="filter-bar" id="categoryFilter">
+          <div class="filter-chip active" onclick="setCatFilter('all', this)">All</div>
+          <div class="filter-chip" onclick="setCatFilter('protein', this)">Proteins</div>
+          <div class="filter-chip" onclick="setCatFilter('carb', this)">Carbs</div>
+          <div class="filter-chip" onclick="setCatFilter('fat', this)">Healthy Fats</div>
+          <div class="filter-chip" onclick="setCatFilter('vegetable', this)">Vegetables</div>
+          <div class="filter-chip" onclick="setCatFilter('fruit', this)">Fruits</div>
+        </div>
+        <div class="food-list" id="foodList"></div>
+      </div>
+
+      <!-- Log Form -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title">Meal Details</div>
+          <div class="log-form">
+
+            <div id="noFoodSelected" style="text-align:center; padding:20px 0; color:var(--text-soft); font-family:sans-serif; font-size:13px">
+              ← Select a food from the list
+            </div>
+
+            <div id="foodSelected" style="display:none">
+              <div class="selected-food-preview" id="foodPreview">
+                <div class="selected-food-name" id="previewName">—</div>
+                <div class="selected-food-note" id="previewNote">—</div>
+                <div class="macro-preview" id="macroPreview"></div>
+              </div>
+              <br>
+            </div>
+
+            <div>
+              <label class="field-label">Meal Type</label>
+              <div class="meal-type-pills">
+                <div class="pill active" onclick="selectMealType('Breakfast', this)">Breakfast</div>
+                <div class="pill" onclick="selectMealType('Lunch', this)">Lunch</div>
+                <div class="pill" onclick="selectMealType('Dinner', this)">Dinner</div>
+                <div class="pill" onclick="selectMealType('Snack', this)">Snack</div>
+                <div class="pill" onclick="selectMealType('Pre-Workout', this)">Pre-Workout</div>
+                <div class="pill" onclick="selectMealType('Post-Workout', this)">Post-Workout</div>
+              </div>
+            </div>
+
+            <div>
+              <label class="field-label">Portion Size (grams)</label>
+              <input type="number" class="field-input" id="portionInput" value="100" min="1" max="2000" oninput="updatePreview()">
+            </div>
+
+            <button class="btn btn-primary" id="addMealBtn" onclick="addMeal()" disabled>Add to Today's Log</button>
+          </div>
+        </div>
+
+        <div class="toggle-section">
+          <div class="toggle-header" onclick="toggleCustomFood()">
+            + Add a Custom Food
+            <span id="customArrow">▼</span>
+          </div>
+          <div class="toggle-body" id="customFoodBody">
+            <div style="display:grid; gap:10px; margin-top:4px">
+              <input type="text" class="field-input" id="customName" placeholder="Food name (e.g. Homemade hummus)">
+              <input type="text" class="field-input" id="customEmoji" placeholder="Emoji (optional, e.g. 🥙)">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+                <input type="number" class="field-input" id="customProt" placeholder="Protein/100g">
+                <input type="number" class="field-input" id="customCarb" placeholder="Carbs/100g">
+                <input type="number" class="field-input" id="customFat" placeholder="Fat/100g">
+                <input type="number" class="field-input" id="customCal" placeholder="Calories/100g">
+              </div>
+              <select class="field-input" id="customQuality" style="font-family:sans-serif">
+                <option value="pure">⭐⭐⭐⭐⭐ Pure/Elite (organic, homemade)</option>
+                <option value="clean" selected>⭐⭐⭐⭐ Clean (minimally processed)</option>
+                <option value="good">⭐⭐⭐ Good (whole, conventional)</option>
+                <option value="ok">⭐⭐ OK (some processing)</option>
+              </select>
+              <button class="btn btn-outline" onclick="saveCustomFood()">Save Custom Food</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOD LIBRARY ============ -->
+  <div id="tab-library" class="tab-content">
+    <div class="section-title">Athlete Food Library</div>
+    <div class="section-sub">Curated by nutritionist principles — whole, homemade-friendly, optimized for performance and body composition.</div>
+
+    <div class="alert alert-info" style="font-family:sans-serif; font-size:13px; line-height:1.6">
+      ⚠️ <strong>Modern Food Awareness:</strong> Conventional eggs & meat may contain antibiotics, hormones, and pesticide residues. Choose <strong>pasture-raised eggs</strong>, <strong>grass-fed/organic meat</strong>, and <strong>wild-caught fish</strong> whenever possible. Wash all produce thoroughly.
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="setLibFilter('all', this)">All Foods</div>
+      <div class="filter-chip" onclick="setLibFilter('protein', this)">Proteins</div>
+      <div class="filter-chip" onclick="setLibFilter('carb', this)">Carbs</div>
+      <div class="filter-chip" onclick="setLibFilter('fat', this)">Healthy Fats</div>
+      <div class="filter-chip" onclick="setLibFilter('vegetable', this)">Vegetables</div>
+      <div class="filter-chip" onclick="setLibFilter('fruit', this)">Fruits</div>
+      <div class="filter-chip" onclick="setLibFilter('pure', this)">★ Elite Only</div>
+    </div>
+
+    <div class="library-grid" id="libraryGrid"></div>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div id="tab-settings" class="tab-content">
+    <div class="section-title">My Goals & Profile</div>
+    <div class="section-sub">Set your daily targets for accurate tracking. Based on athlete nutritional guidelines.</div>
+
+    <div class="settings-grid">
+      <div class="card">
+        <div class="card-title">Daily Macro Targets</div>
+        <div style="display:flex; flex-direction:column; gap:14px">
+          <div>
+            <label class="field-label">Daily Calories (kcal)</label>
+            <input type="number" class="field-input" id="goalCalories" value="2400" onchange="saveGoals()">
+          </div>
+          <div>
+            <label class="field-label">Protein (g)</label>
+            <input type="number" class="field-input" id="goalProtein" value="180" onchange="saveGoals()">
+          </div>
+          <div>
+            <label class="field-label">Carbohydrates (g)</label>
+            <input type="number" class="field-input" id="goalCarbs" value="250" onchange="saveGoals()">
+          </div>
+          <div>
+            <label class="field-label">Fat (g)</label>
+            <input type="number" class="field-input" id="goalFat" value="80" onchange="saveGoals()">
+          </div>
+          <button class="btn btn-primary" onclick="saveGoals(); toast('Goals saved!')">Save Goals</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title">Nutritionist Calculator</div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <div>
+              <label class="field-label">Body Weight (kg)</label>
+              <input type="number" class="field-input" id="calcWeight" placeholder="e.g. 80">
+            </div>
+            <div>
+              <label class="field-label">Goal</label>
+              <select class="field-input" id="calcGoal" style="font-family:sans-serif">
+                <option value="lean">Stay Lean + Maintain Muscle</option>
+                <option value="build">Build Muscle (Lean Bulk)</option>
+                <option value="cut">Cut (Preserve Muscle)</option>
+                <option value="performance">Max Athletic Performance</option>
+              </select>
+            </div>
+            <button class="btn btn-gold" onclick="calculateGoals()">Calculate My Targets</button>
+            <div id="calcResult" style="font-family:sans-serif; font-size:13px; color:var(--text-soft); line-height:1.6"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Diet Philosophy</div>
+          <div style="font-family:sans-serif; font-size:13px; color:var(--text-soft); line-height:1.7">
+            <p style="margin-bottom:8px">🌿 <strong>Homemade first</strong> — cook from whole ingredients to avoid additives, preservatives, and seed oils.</p>
+            <p style="margin-bottom:8px">🥚 <strong>Pasture-raised eggs</strong> — higher omega-3, vitamin D, and no synthetic hormones.</p>
+            <p style="margin-bottom:8px">🐟 <strong>Wild-caught fish</strong> — better fatty acid profile than farmed. Prioritize small fish (sardines, mackerel) to minimize mercury.</p>
+            <p style="margin-bottom:8px">🥩 <strong>Grass-fed meat</strong> — higher CLA, omega-3, and no antibiotic/hormone residues.</p>
+            <p>🌾 <strong>Organic when possible</strong> — especially the Dirty Dozen (strawberries, spinach, peppers, apples).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  DATA — FOOD LIBRARY
+// ============================================================
+const FOOD_DB = [
+  // PROTEINS
+  { id: 1, name: "Pasture-Raised Eggs", emoji: "🥚", cat: "protein", quality: "pure",
+    per100: { cal: 155, prot: 13, carb: 1.1, fat: 11 },
+    note: "<strong>Elite choice.</strong> Higher omega-3 and vitamin D vs conventional. No synthetic hormones. Cook in olive oil or ghee — avoid non-stick pans." },
+  { id: 2, name: "Wild-Caught Salmon", emoji: "🐟", cat: "protein", quality: "pure",
+    per100: { cal: 208, prot: 20, carb: 0, fat: 13 },
+    note: "<strong>Top-tier.</strong> Rich in omega-3 EPA/DHA for inflammation control and muscle recovery. Sockeye > Atlantic. Avoid farmed salmon (higher PCBs, dye-fed)." },
+  { id: 3, name: "Grass-Fed Ground Beef", emoji: "🥩", cat: "protein", quality: "pure",
+    per100: { cal: 215, prot: 26, carb: 0, fat: 12 },
+    note: "<strong>Ideal red meat.</strong> 2–4× higher CLA and omega-3 vs grain-fed. Supports testosterone, iron, and creatine stores. Limit to 2–3x/week." },
+  { id: 4, name: "Organic Chicken Breast", emoji: "🍗", cat: "protein", quality: "clean",
+    per100: { cal: 165, prot: 31, carb: 0, fat: 3.6 },
+    note: "<strong>Lean staple.</strong> Best protein per calorie. Choose organic/free-range — conventional chicken can carry antibiotic-resistant bacteria residues." },
+  { id: 5, name: "Sardines (in water)", emoji: "🐠", cat: "protein", quality: "pure",
+    per100: { cal: 135, prot: 23, carb: 0, fat: 5 },
+    note: "<strong>Underrated superfood.</strong> Very low in mercury (small fish), loaded with omega-3, calcium, vitamin D, and B12. One of the cleanest animal foods." },
+  { id: 6, name: "Greek Yogurt (full-fat, plain)", emoji: "🥛", cat: "protein", quality: "clean",
+    per100: { cal: 97, prot: 9, carb: 3.6, fat: 5 },
+    note: "<strong>Probiotic powerhouse.</strong> Choose full-fat, plain — low-fat versions add sugar. Organic, grass-fed brands best. Supports gut health and recovery." },
+  { id: 7, name: "Cottage Cheese (organic)", emoji: "🧀", cat: "protein", quality: "clean",
+    per100: { cal: 98, prot: 11, carb: 3.4, fat: 4.3 },
+    note: "High in casein protein — slow-digesting, ideal before sleep. Organic preferred to avoid rBGH growth hormone used in conventional dairy." },
+  { id: 8, name: "Lentils (cooked)", emoji: "🫘", cat: "protein", quality: "pure",
+    per100: { cal: 116, prot: 9, carb: 20, fat: 0.4 },
+    note: "<strong>Plant protein gold.</strong> Also high in fiber, iron, and folate. Soak overnight to reduce phytates and improve digestion. Great for gut microbiome." },
+  { id: 9, name: "Tempeh", emoji: "🌿", cat: "protein", quality: "clean",
+    per100: { cal: 193, prot: 19, carb: 9, fat: 11 },
+    note: "Fermented soy — the phytate-reduced form. Better than tofu for nutrient absorption. Rich in protein, B12-precursors, and probiotics." },
+
+  // CARBS
+  { id: 10, name: "Sweet Potato", emoji: "🍠", cat: "carb", quality: "pure",
+    per100: { cal: 86, prot: 1.6, carb: 20, fat: 0.1 },
+    note: "<strong>Athlete's best carb.</strong> Rich in beta-carotene, potassium, vitamin C. Low GI, sustained energy. Bake or steam — avoid frying." },
+  { id: 11, name: "Rolled Oats (organic)", emoji: "🌾", cat: "carb", quality: "clean",
+    per100: { cal: 389, prot: 17, carb: 66, fat: 7 },
+    note: "<strong>Breakfast of champions.</strong> Beta-glucan fiber lowers cholesterol and feeds gut bacteria. Choose organic — conventional oats tested high for glyphosate." },
+  { id: 12, name: "Brown Rice", emoji: "🍚", cat: "carb", quality: "good",
+    per100: { cal: 216, prot: 4.5, carb: 45, fat: 1.8 },
+    note: "Whole grain with bran and germ intact. Note: brown rice can contain inorganic arsenic — vary your grain sources. Rinse thoroughly before cooking." },
+  { id: 13, name: "Quinoa (cooked)", emoji: "🌱", cat: "carb", quality: "pure",
+    per100: { cal: 120, prot: 4.4, carb: 21, fat: 1.9 },
+    note: "<strong>Complete protein grain.</strong> Contains all essential amino acids. Also high in magnesium, iron, and fiber. Rinse to remove bitter saponins." },
+  { id: 14, name: "Black Beans (cooked)", emoji: "⚫", cat: "carb", quality: "pure",
+    per100: { cal: 132, prot: 8.9, carb: 24, fat: 0.5 },
+    note: "Protein + carb in one. High in resistant starch (prebiotic), anthocyanins (antioxidant), and iron. Soak overnight if cooking from dry." },
+  { id: 15, name: "Banana", emoji: "🍌", cat: "fruit", quality: "good",
+    per100: { cal: 89, prot: 1.1, carb: 23, fat: 0.3 },
+    note: "<strong>Pre-workout carb.</strong> Fast-acting energy + potassium for muscle function. Slightly underripe = more resistant starch (better for gut). Organic preferred." },
+
+  // HEALTHY FATS
+  { id: 16, name: "Avocado", emoji: "🥑", cat: "fat", quality: "pure",
+    per100: { cal: 160, prot: 2, carb: 9, fat: 15 },
+    note: "<strong>Best fat source.</strong> Rich in oleic acid (same as olive oil), potassium, folate, and vitamin K. Supports hormone production and joint health." },
+  { id: 17, name: "Extra Virgin Olive Oil", emoji: "🫒", cat: "fat", quality: "pure",
+    per100: { cal: 884, prot: 0, carb: 0, fat: 100 },
+    note: "<strong>Gold standard oil.</strong> Use for low-medium heat cooking or raw (dressings). High in polyphenols — anti-inflammatory. Do NOT fry with it at high heat." },
+  { id: 18, name: "Raw Walnuts", emoji: "🪨", cat: "fat", quality: "pure",
+    per100: { cal: 654, prot: 15, carb: 14, fat: 65 },
+    note: "<strong>Brain food.</strong> Highest plant omega-3 (ALA). Also rich in melatonin and magnesium — improves sleep quality. Eat a small handful daily." },
+  { id: 19, name: "Raw Almonds", emoji: "🫘", cat: "fat", quality: "pure",
+    per100: { cal: 579, prot: 21, carb: 22, fat: 50 },
+    note: "High in vitamin E, magnesium, and monounsaturated fat. Eat raw or lightly roasted — roasting at high heat damages fats. Soak overnight for better digestion." },
+  { id: 20, name: "Ghee (grass-fed)", emoji: "🧈", cat: "fat", quality: "clean",
+    per100: { cal: 900, prot: 0.3, carb: 0, fat: 99 },
+    note: "Clarified butter — lactose and casein removed. Rich in fat-soluble vitamins A, D, E, K2. High smoke point makes it ideal for cooking." },
+
+  // VEGETABLES
+  { id: 21, name: "Spinach (organic)", emoji: "🥬", cat: "vegetable", quality: "pure",
+    per100: { cal: 23, prot: 2.9, carb: 3.6, fat: 0.4 },
+    note: "<strong>#1 on Dirty Dozen.</strong> Always buy organic. Packed with iron, magnesium, nitrates (improves athletic performance), and vitamin K. Eat raw or lightly cooked." },
+  { id: 22, name: "Broccoli", emoji: "🥦", cat: "vegetable", quality: "pure",
+    per100: { cal: 34, prot: 2.8, carb: 7, fat: 0.4 },
+    note: "<strong>Sulforaphane powerhouse.</strong> A potent anti-cancer compound. Eat lightly steamed or raw — overcooking destroys enzymes. Rich in vitamin C and folate." },
+  { id: 23, name: "Garlic (raw)", emoji: "🧄", cat: "vegetable", quality: "pure",
+    per100: { cal: 149, prot: 6, carb: 33, fat: 0.5 },
+    note: "<strong>Natural antibiotic.</strong> Allicin has proven antimicrobial and immune-boosting effects. Crush and wait 10 min before cooking to activate allicin. Eat 1–2 cloves daily." },
+  { id: 24, name: "Kale", emoji: "🥗", cat: "vegetable", quality: "pure",
+    per100: { cal: 49, prot: 4.3, carb: 8.8, fat: 0.9 },
+    note: "Exceptional micronutrient density: vitamin K, C, A, calcium, and lutein. Massage raw kale with lemon to break down tough fibers. On Dirty Dozen — buy organic." },
+  { id: 25, name: "Bell Pepper (red)", emoji: "🫑", cat: "vegetable", quality: "pure",
+    per100: { cal: 31, prot: 1, carb: 6, fat: 0.3 },
+    note: "Highest vitamin C of any vegetable (3× more than oranges). Rich in capsaicin and antioxidants. Buy organic — peppers rank high on the Dirty Dozen list." },
+
+  // FRUITS
+  { id: 26, name: "Blueberries (organic)", emoji: "🫐", cat: "fruit", quality: "pure",
+    per100: { cal: 57, prot: 0.7, carb: 14, fat: 0.3 },
+    note: "<strong>Top antioxidant food.</strong> Anthocyanins improve muscle recovery, memory, and blood vessel health. Organic strongly recommended — conventional heavily sprayed." },
+  { id: 27, name: "Raw Honey", emoji: "🍯", cat: "carb", quality: "clean",
+    per100: { cal: 304, prot: 0.3, carb: 82, fat: 0 },
+    note: "Use raw/unfiltered — commercial honey is heat-processed. Contains enzymes, antimicrobial compounds, and trace minerals. Use as a natural pre-workout sweetener in moderation." },
+  { id: 28, name: "Ginger Root", emoji: "🫚", cat: "vegetable", quality: "pure",
+    per100: { cal: 80, prot: 1.8, carb: 18, fat: 0.8 },
+    note: "<strong>Natural anti-inflammatory.</strong> Gingerols reduce muscle soreness post-workout (as effective as ibuprofen in some studies). Grate fresh into meals, teas, or smoothies." },
+  { id: 29, name: "Turmeric", emoji: "🟡", cat: "vegetable", quality: "pure",
+    per100: { cal: 312, prot: 9.7, carb: 67, fat: 3.3 },
+    note: "Curcumin — potent anti-inflammatory. Bioavailability increases 2000% when combined with black pepper. Use 1–2 tsp daily in cooking or golden milk." },
+  { id: 30, name: "Mackerel (wild)", emoji: "🐡", cat: "protein", quality: "pure",
+    per100: { cal: 205, prot: 19, carb: 0, fat: 14 },
+    note: "<strong>Omega-3 king.</strong> One of the highest omega-3 fish. Very low in mercury (unlike tuna). Rich in vitamin B12, D, and selenium. Eat 2–3x/week." },
+];
+
+// ============================================================
+//  STATE
+// ============================================================
+let state = {
+  meals: [],      // today's logged meals
+  weights: [],
+  goals: { cal: 2400, prot: 180, carb: 250, fat: 80 },
+  selectedFood: null,
+  mealType: 'Breakfast',
+  libFilter: 'all',
+  catFilter: 'all',
+  customFoods: [],
+};
+
+// Load from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('cleanplate_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.goals = parsed.goals || state.goals;
+      state.customFoods = parsed.customFoods || [];
+      state.weights = parsed.weights || [];
+      // Only load meals from today
+      const today = todayStr();
+      state.meals = (parsed.meals || []).filter(m => m.date === today);
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('cleanplate_state', JSON.stringify(state));
+  } catch(e) {}
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (tab === 'dashboard') updateDashboard();
+  if (tab === 'log') renderFoodList();
+  if (tab === 'library') renderLibrary();
+  if (tab === 'settings') loadGoalInputs();
+}
+
+// ============================================================
+//  DASHBOARD
+// ============================================================
+function updateDashboard() {
+  const meals = state.meals;
+  const g = state.goals;
+
+  let totCal = 0, totProt = 0, totCarb = 0, totFat = 0, totalQuality = 0;
+  meals.forEach(m => {
+    totCal  += m.cal;
+    totProt += m.prot;
+    totCarb += m.carb;
+    totFat  += m.fat;
+    totalQuality += m.qualityScore;
+  });
+
+  const avgQ = meals.length ? Math.round(totalQuality / meals.length) : null;
+
+  // Stats
+  document.getElementById('statCalories').textContent = Math.round(totCal);
+  document.getElementById('statProtein').innerHTML = Math.round(totProt) + '<span class="stat-unit">g</span>';
+  document.getElementById('statMeals').textContent = meals.length;
+  document.getElementById('calGoalSub').textContent = g.cal;
+  document.getElementById('protGoalSub').textContent = g.prot;
+
+  // Macro bars
+  const pct = (val, goal) => Math.min(100, Math.round(val / goal * 100));
+  document.getElementById('protBar').textContent = `${Math.round(totProt)}g / ${g.prot}g`;
+  document.getElementById('carbBar').textContent = `${Math.round(totCarb)}g / ${g.carb}g`;
+  document.getElementById('fatBar').textContent  = `${Math.round(totFat)}g / ${g.fat}g`;
+  document.getElementById('calBar').textContent  = `${Math.round(totCal)} / ${g.cal} kcal`;
+  document.getElementById('protFill').style.width = pct(totProt, g.prot) + '%';
+  document.getElementById('carbFill').style.width = pct(totCarb, g.carb) + '%';
+  document.getElementById('fatFill').style.width  = pct(totFat, g.fat) + '%';
+  document.getElementById('calFill').style.width  = pct(totCal, g.cal) + '%';
+
+  // Quality circle
+  if (avgQ !== null) {
+    document.getElementById('qualityNum').textContent = avgQ;
+    const angle = avgQ / 100 * 360;
+    const color = avgQ >= 80 ? 'var(--green)' : avgQ >= 60 ? 'var(--gold)' : 'var(--brown-light)';
+    document.getElementById('qualityCircle').style.background = `conic-gradient(${color} ${angle}deg, var(--cream-dark) ${angle}deg)`;
+    document.getElementById('qualityTag').textContent = avgQ >= 85 ? '🌿 Elite Purity' : avgQ >= 70 ? '✅ Clean Diet' : avgQ >= 50 ? '👍 Good Choices' : '⚠️ Room to Improve';
+    document.getElementById('qualityTag').style.color = color;
+    document.getElementById('headerQuality').textContent = `Quality: ${avgQ}/100`;
+  }
+
+  // Meals list
+  const list = document.getElementById('mealsList');
+  if (!meals.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">No meals logged yet</div><div class="empty-sub">Head to "Log Meal" to start tracking</div></div>`;
+  } else {
+    list.innerHTML = meals.map((m, i) => `
+      <div class="meal-item">
+        <div class="meal-time">${m.mealType}</div>
+        <div style="font-size:20px">${m.emoji}</div>
+        <div class="meal-name">${m.name}<br><span style="font-family:sans-serif;font-size:11px;color:var(--text-soft)">${m.grams}g portion</span></div>
+        <div class="meal-macros">${Math.round(m.prot)}g protein<br>${Math.round(m.cal)} kcal</div>
+        <div class="meal-quality-badge badge-${m.quality}">${qualityLabel(m.quality)}</div>
+        <button class="meal-delete" onclick="deleteMeal(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  // Insight
+  updateInsight(totProt, totCal, totFat, meals.length, g);
+
+  // Weight
+  renderWeights();
+}
+
+function updateInsight(prot, cal, fat, mealCount, g) {
+  const insights = [];
+  if (mealCount === 0) {
+    document.getElementById('insightText').textContent = 'Log your first meal to get your personalized nutrition insight for the day.';
+    return;
+  }
+  const protPct = prot / g.prot;
+  const calPct = cal / g.cal;
+  const omega3foods = state.meals.filter(m => ['Wild-Caught Salmon','Sardines (in water)','Raw Walnuts','Mackerel (wild)'].includes(m.name));
+
+  if (protPct < 0.4) insights.push('Protein is low — add a protein source to your next meal (eggs, chicken, salmon, or lentils).');
+  else if (protPct >= 0.9) insights.push('Protein target almost hit — great work for muscle preservation and recovery.');
+  if (calPct > 1.1) insights.push('Calories are over target — focus on vegetables and protein for the rest of the day.');
+  if (!omega3foods.length) insights.push('No omega-3 source today — consider adding salmon, sardines, or walnuts to fight inflammation.');
+  if (mealCount >= 4) insights.push('Consistent meal timing — your blood sugar and hormone levels will thank you.');
+
+  document.getElementById('insightText').textContent = insights.length ? insights[0] : '✅ Looking great today — keep your next meal high in protein and whole foods.';
+}
+
+function qualityLabel(q) {
+  return { pure: '★ Pure', clean: 'Clean', good: 'Good', ok: 'OK' }[q] || q;
+}
+
+function qualityScore(q) {
+  return { pure: 95, clean: 75, good: 55, ok: 35 }[q] || 50;
+}
+
+function deleteMeal(i) {
+  state.meals.splice(i, 1);
+  saveState();
+  updateDashboard();
+  toast('Meal removed');
+}
+
+// ============================================================
+//  WEIGHT LOG
+// ============================================================
+function logWeight() {
+  const val = parseFloat(document.getElementById('weightInput').value);
+  if (!val || val < 20 || val > 300) { toast('Enter a valid weight'); return; }
+  state.weights.unshift({ date: todayStr(), val });
+  state.weights = state.weights.slice(0, 30);
+  saveState();
+  renderWeights();
+  document.getElementById('weightInput').value = '';
+  toast('Weight logged');
+}
+
+function renderWeights() {
+  const el = document.getElementById('weightEntries');
+  if (!state.weights.length) {
+    el.innerHTML = '<div style="font-family:sans-serif;font-size:12px;color:var(--text-soft);text-align:center;padding:10px">No entries yet</div>';
+    return;
+  }
+  el.innerHTML = state.weights.slice(0, 7).map(w => `
+    <div class="weight-entry">
+      <span>${w.date}</span>
+      <strong>${w.val} kg</strong>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+//  LOG MEAL
+// ============================================================
+let catFilter = 'all';
+
+function allFoods() {
+  return [...FOOD_DB, ...state.customFoods];
+}
+
+function renderFoodList() {
+  const q = document.getElementById('foodSearch').value.toLowerCase();
+  const foods = allFoods().filter(f => {
+    const matchCat = catFilter === 'all' || f.cat === catFilter;
+    const matchQ = !q || f.name.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+
+  const el = document.getElementById('foodList');
+  if (!foods.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;font-family:sans-serif;font-size:13px;color:var(--text-soft)">No foods found</div>';
+    return;
+  }
+  el.innerHTML = foods.map(f => `
+    <div class="food-item ${state.selectedFood && state.selectedFood.id === f.id ? 'selected' : ''}" onclick="selectFood(${f.id}, ${f.id > 100 ? true : false})">
+      <div class="food-emoji">${f.emoji || '🍴'}</div>
+      <div class="food-info">
+        <div class="food-item-name">${f.name}</div>
+        <div class="food-item-sub">${f.per100.cal} kcal · ${f.per100.prot}g protein · ${qualityLabel(f.quality)}</div>
+      </div>
+      <div class="food-stars">${starsFor(f.quality)}</div>
+    </div>
+  `).join('');
+}
+
+function starsFor(q) {
+  const n = { pure: 5, clean: 4, good: 3, ok: 2 }[q] || 2;
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+function filterFoods() { renderFoodList(); }
+
+function setCatFilter(cat, el) {
+  catFilter = cat;
+  document.querySelectorAll('#categoryFilter .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderFoodList();
+}
+
+function selectFood(id, isCustom) {
+  const food = allFoods().find(f => f.id === id);
+  if (!food) return;
+  state.selectedFood = food;
+  renderFoodList();
+  document.getElementById('noFoodSelected').style.display = 'none';
+  document.getElementById('foodSelected').style.display = 'block';
+  document.getElementById('addMealBtn').disabled = false;
+  updatePreview();
+}
+
+function updatePreview() {
+  if (!state.selectedFood) return;
+  const grams = parseFloat(document.getElementById('portionInput').value) || 100;
+  const f = state.selectedFood;
+  const ratio = grams / 100;
+  document.getElementById('previewName').textContent = `${f.emoji || ''} ${f.name}`;
+  document.getElementById('previewNote').textContent = `${grams}g portion`;
+  document.getElementById('macroPreview').innerHTML = `
+    <div class="macro-chip"><div class="macro-chip-val">${Math.round(f.per100.cal * ratio)}</div><div class="macro-chip-label">kcal</div></div>
+    <div class="macro-chip"><div class="macro-chip-val">${Math.round(f.per100.prot * ratio)}g</div><div class="macro-chip-label">protein</div></div>
+    <div class="macro-chip"><div class="macro-chip-val">${Math.round(f.per100.carb * ratio)}g</div><div class="macro-chip-label">carbs</div></div>
+    <div class="macro-chip"><div class="macro-chip-val">${Math.round(f.per100.fat * ratio)}g</div><div class="macro-chip-label">fat</div></div>
+  `;
+}
+
+function selectMealType(type, el) {
+  state.mealType = type;
+  document.querySelectorAll('.meal-type-pills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function addMeal() {
+  if (!state.selectedFood) return;
+  const grams = parseFloat(document.getElementById('portionInput').value) || 100;
+  const f = state.selectedFood;
+  const ratio = grams / 100;
+  const meal = {
+    id: Date.now(),
+    date: todayStr(),
+    name: f.name,
+    emoji: f.emoji || '🍴',
+    quality: f.quality,
+    qualityScore: qualityScore(f.quality),
+    mealType: state.mealType,
+    grams,
+    cal:  f.per100.cal  * ratio,
+    prot: f.per100.prot * ratio,
+    carb: f.per100.carb * ratio,
+    fat:  f.per100.fat  * ratio,
+  };
+  state.meals.push(meal);
+  saveState();
+  toast(`${f.emoji} ${f.name} added!`);
+  showTab('dashboard');
+  document.querySelectorAll('nav button')[0].classList.add('active');
+  document.querySelectorAll('nav button').forEach((b, i) => { if (i !== 0) b.classList.remove('active'); });
+  updateDashboard();
+}
+
+// ============================================================
+//  CUSTOM FOOD
+// ============================================================
+function toggleCustomFood() {
+  const body = document.getElementById('customFoodBody');
+  body.classList.toggle('open');
+  document.getElementById('customArrow').textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+let customIdCounter = 1000;
+
+function saveCustomFood() {
+  const name = document.getElementById('customName').value.trim();
+  if (!name) { toast('Enter a food name'); return; }
+  const food = {
+    id: ++customIdCounter,
+    name,
+    emoji: document.getElementById('customEmoji').value.trim() || '🍴',
+    cat: 'protein', quality: document.getElementById('customQuality').value,
+    per100: {
+      cal:  parseFloat(document.getElementById('customCal').value)  || 0,
+      prot: parseFloat(document.getElementById('customProt').value) || 0,
+      carb: parseFloat(document.getElementById('customCarb').value) || 0,
+      fat:  parseFloat(document.getElementById('customFat').value)  || 0,
+    },
+    note: 'Custom food added by you.',
+  };
+  state.customFoods.push(food);
+  saveState();
+  renderFoodList();
+  toast('Custom food saved!');
+  ['customName','customEmoji','customProt','customCarb','customFat','customCal'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ============================================================
+//  FOOD LIBRARY
+// ============================================================
+let libFilter = 'all';
+
+function setLibFilter(f, el) {
+  libFilter = f;
+  document.querySelectorAll('#tab-library .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderLibrary();
+}
+
+function renderLibrary() {
+  const foods = FOOD_DB.filter(f => {
+    if (libFilter === 'all') return true;
+    if (libFilter === 'pure') return f.quality === 'pure';
+    return f.cat === libFilter;
+  });
+
+  const grid = document.getElementById('libraryGrid');
+  grid.innerHTML = foods.map(f => `
+    <div class="lib-card">
+      <div class="lib-quality badge-${f.quality}">${qualityLabel(f.quality)}</div>
+      <div class="lib-card-top">
+        <div class="lib-emoji">${f.emoji}</div>
+        <div>
+          <div class="lib-name">${f.name}</div>
+          <div class="lib-category" style="color:var(--text-soft)">${starsFor(f.quality)} · per 100g</div>
+        </div>
+      </div>
+      <div class="lib-macros">
+        <div class="lib-macro"><div class="lib-macro-val">${f.per100.cal}</div><div class="lib-macro-label">kcal</div></div>
+        <div class="lib-macro"><div class="lib-macro-val">${f.per100.prot}g</div><div class="lib-macro-label">protein</div></div>
+        <div class="lib-macro"><div class="lib-macro-val">${f.per100.carb}g</div><div class="lib-macro-label">carbs</div></div>
+        <div class="lib-macro"><div class="lib-macro-val">${f.per100.fat}g</div><div class="lib-macro-label">fat</div></div>
+      </div>
+      <div class="lib-note">${f.note}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+//  GOALS & SETTINGS
+// ============================================================
+function loadGoalInputs() {
+  document.getElementById('goalCalories').value = state.goals.cal;
+  document.getElementById('goalProtein').value  = state.goals.prot;
+  document.getElementById('goalCarbs').value    = state.goals.carb;
+  document.getElementById('goalFat').value      = state.goals.fat;
+}
+
+function saveGoals() {
+  state.goals = {
+    cal:  parseInt(document.getElementById('goalCalories').value) || 2400,
+    prot: parseInt(document.getElementById('goalProtein').value)  || 180,
+    carb: parseInt(document.getElementById('goalCarbs').value)    || 250,
+    fat:  parseInt(document.getElementById('goalFat').value)      || 80,
+  };
+  saveState();
+  updateDashboard();
+}
+
+function calculateGoals() {
+  const w = parseFloat(document.getElementById('calcWeight').value);
+  if (!w) { document.getElementById('calcResult').innerHTML = '⚠️ Enter your body weight.'; return; }
+  const goal = document.getElementById('calcGoal').value;
+
+  let cal, prot, carb, fat;
+  // Nutritionist-grade formulas for athletes
+  if (goal === 'lean') {
+    prot = Math.round(w * 2.0); // 2g/kg
+    cal  = Math.round(w * 30);
+    fat  = Math.round(cal * 0.28 / 9);
+    carb = Math.round((cal - prot * 4 - fat * 9) / 4);
+  } else if (goal === 'build') {
+    prot = Math.round(w * 2.2);
+    cal  = Math.round(w * 36);
+    fat  = Math.round(cal * 0.25 / 9);
+    carb = Math.round((cal - prot * 4 - fat * 9) / 4);
+  } else if (goal === 'cut') {
+    prot = Math.round(w * 2.4); // high protein to preserve muscle
+    cal  = Math.round(w * 25);
+    fat  = Math.round(cal * 0.30 / 9);
+    carb = Math.round((cal - prot * 4 - fat * 9) / 4);
+  } else { // performance
+    prot = Math.round(w * 2.0);
+    cal  = Math.round(w * 38);
+    fat  = Math.round(cal * 0.25 / 9);
+    carb = Math.round((cal - prot * 4 - fat * 9) / 4);
+  }
+
+  document.getElementById('calcResult').innerHTML = `
+    <div style="background:var(--green-xlight); padding:12px; border-radius:8px; margin-top:4px; border:1px solid var(--green-light)">
+      <strong style="color:var(--green-dark)">Recommended targets for ${w}kg athlete:</strong><br>
+      🔥 Calories: <strong>${cal} kcal</strong><br>
+      🥩 Protein: <strong>${prot}g</strong> (${(prot/w).toFixed(1)}g/kg)<br>
+      🌾 Carbs: <strong>${carb}g</strong><br>
+      🥑 Fat: <strong>${fat}g</strong>
+    </div>
+  `;
+
+  // Auto-populate fields
+  document.getElementById('goalCalories').value = cal;
+  document.getElementById('goalProtein').value  = prot;
+  document.getElementById('goalCarbs').value    = carb;
+  document.getElementById('goalFat').value      = fat;
+  state.goals = { cal, prot, carb, fat };
+  saveState();
+  updateDashboard();
+}
+
+// ============================================================
+//  TOAST
+// ============================================================
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+function init() {
+  loadState();
+
+  // Header date
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  updateDashboard();
+  renderFoodList();
+  renderLibrary();
+  loadGoalInputs();
+}
+
+init();
+</script>
+</body>
+</html>
